@@ -1,4 +1,4 @@
-﻿Shader "Custom/ColorChangeWithTime" {
+﻿Shader "Custom/FragCoords" {
 
 		SubShader{
 		Pass{
@@ -21,8 +21,10 @@
 		return o;
 	}
 
-	half4 frag(vertOutput output) : COLOR{
-		return half4(abs(sin(_Time[1])), abs(sin(_Time[1]/4)),  abs(sin(_Time[0])), 1.0);
+	half4 frag(vertOutput output) : COLOR {
+		// _ScreenParams stores the width/height of the camera
+		half2 normalizedcoords = half2(output.pos.x / _ScreenParams.x, output.pos.y / _ScreenParams.y);
+		return half4(normalizedcoords.x, normalizedcoords.y,  0.0, 1.0);
 	}
 		ENDCG
 	}
