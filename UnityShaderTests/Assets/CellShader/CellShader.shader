@@ -3,6 +3,7 @@
 	Properties
 	{
 		_MainTex("Texture", 2D) = "white" {}
+		_ObjPos("ObjPos", Vector) = (1,1,1,1)
 	}
 		SubShader
 	{
@@ -29,6 +30,9 @@
 		float4 vertex : SV_POSITION;
 	};
 
+	sampler2D _MainTex;
+	uniform float4 _ObjPos;
+
 	v2f vert(appdata v)
 	{
 		v2f o;
@@ -37,13 +41,13 @@
 		return o;
 	}
 
-	sampler2D _MainTex;
-
 	half4 frag(v2f i) : SV_Target
 	{
 		float2 normalizedCoords = i.vertex.xy / _ScreenParams.xy;
 		// Takes care of a wider aspect ratio
 		normalizedCoords.x *= _ScreenParams.x / _ScreenParams.y;
+		// Mouse input
+		_ObjPos.x *= _ScreenParams.x / _ScreenParams.y;
 
 		half4 col = half4(0, 0, 0, 0);
 
@@ -53,7 +57,7 @@
 		points[1] = float2(0.60, 0.07);
 		points[2] = float2(0.28, 0.64);
 		points[3] = float2(0.31, 0.26);
-		points[4] = float2(1, .2);
+		points[4] = _ObjPos.xy / _ScreenParams.xy;
 
 		// Minimum distance
 		float minDist = 1;
