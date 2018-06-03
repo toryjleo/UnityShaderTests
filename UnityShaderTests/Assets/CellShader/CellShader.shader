@@ -68,24 +68,24 @@
 		float dist = length(diff);
 
 
-		float minDist = 1;
+		float minDist = 10;
 		for (int y = -1; y <= 1; y++) 
 		{
 			for (int x = -1; x <= 1; x++) 
 			{
 				float2 neighbor = float2((float)x, (float)y);
 				// Random position from current + neighbor place in the grid
-				float neighborPoint = random2(i_st + neighbor);
-				float diff = neighbor + neighborPoint - f_st;
+				float2 neighborPoint = random2(i_st + neighbor);
+				float2 diff = neighbor + neighborPoint - f_st;
 				// Distance to the point
-				float dist = length(diff);
+				float d = length(diff);
 				// Keep the closer distance
-				minDist = min(minDist, dist);
+				minDist = min(minDist, d);
 			}
 		}
 
 		
-		col += dist;
+		col += minDist;
 		// Get the rgb value from the _MainTex
 		//half4 col = tex2D(_MainTex, i.uv);
 

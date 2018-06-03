@@ -74,11 +74,11 @@
 				// Relative neighbor location in grid
 				float2 neighbor = float2((float)x, (float)y);
 				// Random position from current + neighbor place in the grid
-				float neighborPoint = random2(i_st + neighbor);
+				float2 neighborPoint = random2(i_st + neighbor);
 				// Animate the point
 				neighborPoint = 0.5 + 0.5*sin(_Time[1] + 6.2831*neighborPoint);
 				// Vector between the pixel and the point
-				float diff = neighbor.xy + neighborPoint - f_st;
+				float2 diff = neighbor.xy + neighborPoint - f_st;
 				// Distance from neighborPoint
 				float dist = length(diff);
 				m_dist = min(m_dist, dist);
