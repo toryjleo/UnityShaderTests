@@ -1,4 +1,4 @@
-﻿Shader "Custom/CellShader" {
+﻿Shader "Custom/AnimatedCellShader" {
 
 	Properties
 	{
@@ -53,44 +53,43 @@
 		float2 normalizedCoords = i.vertex.xy / _ScreenParams.xy;
 		// Takes care of a wider aspect ratio
 		normalizedCoords.x *= _ScreenParams.x / _ScreenParams.y;
-		float2 st = normalizedCoords * 3;
-		// Init color
+		// Initialize the color
 		half4 col = half4(0, 0, 0, 0);
+		// Scale
+		float2 st = 3 * normalizedCoords;
 		// Mouse input
-		_ObjPos.x *= _ScreenParams.x / _ScreenParams.y;
+		//_ObjPos.x *= _ScreenParams.x / _ScreenParams.y;
 
 		// Tile space
 		float2 i_st = floor(st);
 		float2 f_st = frac(st);
 
-		float2 middle = random2(i_st);
-		float2 diff = middle - f_st;
-		float dist = length(diff);
+		float m_dist = 1;
 
-
-		float minDist = 1;
-		for (int y = -1; y <= 1; y++) 
+		// Go through all neighboring sections
+		for (int y = -1; y <= 1; y++)
 		{
 			for (int x = -1; x <= 1; x++) 
 			{
+				// Relative neighbor location in grid
 				float2 neighbor = float2((float)x, (float)y);
 				// Random position from current + neighbor place in the grid
 				float neighborPoint = random2(i_st + neighbor);
-				float diff = neighbor + neighborPoint - f_st;
-				// Distance to the point
+				// Animate the point
+				neighborPoint = 0.5 + 0.5*sin(_Time[1] + 6.2831*neighborPoint);
+				// Vector between the pixel and the point
+				float diff = neighbor.xy + neighborPoint - f_st;
+				// Distance from neighborPoint
 				float dist = length(diff);
-				// Keep the closer distance
-				minDist = min(minDist, dist);
+				m_dist = min(m_dist, dist);
 			}
 		}
 
-		
-		col += dist;
-		// Get the rgb value from the _MainTex
-		//half4 col = tex2D(_MainTex, i.uv);
+		// Draw the min distance (distance field)
+		col += m_dist;
 
-		// Draw cell center
-		col += 1. - step(.02, dist);
+		// Make center
+		col += 1 - step(.02, m_dist);
 
 		return col;
 	}
