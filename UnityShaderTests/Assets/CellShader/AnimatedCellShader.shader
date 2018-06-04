@@ -3,7 +3,9 @@
 	Properties
 	{
 		_MainTex("Texture", 2D) = "white" {}
-		_ObjPos("ObjPos", Vector) = (1,1,1,1)
+		_MousePos("MousePos", Vector) = (1,1,1,1)
+		_Color("Color", Color) = (0.2, 0.90980, 0.83529, 1)
+		_Scale("Scale", Float) = 6
 	}
 		SubShader
 	{
@@ -30,8 +32,11 @@
 		float4 vertex : SV_POSITION;
 	};
 
+	// Uniforms
 	sampler2D _MainTex;
-	uniform float4 _ObjPos;
+	float4 _MousePos;
+	float4 _Color;
+	float _Scale;
 
 	
 	float2 random2( float2 p) 
@@ -50,22 +55,26 @@
 
 	half4 frag(v2f i) : SV_Target
 	{
+		// Initialize the color
+		float3 color = _Color;
+		// Normalize the coordinates
 		float2 normalizedCoords = i.vertex.xy / _ScreenParams.xy;
 		// Takes care of a wider aspect ratio
 		normalizedCoords.x *= _ScreenParams.x / _ScreenParams.y;
-		// Initialize the color
-		half4 col = half4(0, 0, 0, 0);
 		// Scale
-		float2 st = 3 * normalizedCoords;
+		float2 st = _Scale * normalizedCoords;
 		// Mouse input
-		//_ObjPos.x *= _ScreenParams.x / _ScreenParams.y;
+		_MousePos.xy /= _ScreenParams.xy;
+		_MousePos.x *= _ScreenParams.x / _ScreenParams.y;
+		_MousePos.xy = _MousePos.xy * _Scale;
+		float2 i_mst = floor(_MousePos.xy);
+		float2 f_mst = frac(_MousePos.xy);
 
 		// Tile space
 		float2 i_st = floor(st);
 		float2 f_st = frac(st);
 
-		float m_dist = 1;
-
+		float minDist = 1;
 		// Go through all neighboring sections
 		for (int y = -1; y <= 1; y++)
 		{
@@ -81,17 +90,35 @@
 				float2 diff = neighbor.xy + neighborPoint - f_st;
 				// Distance from neighborPoint
 				float dist = length(diff);
-				m_dist = min(m_dist, dist);
+				// Update the minimum distance
+				minDist = min(minDist, dist);
 			}
 		}
 
+		// Make another cell for the mouse
+		float2 diff = (i_mst + f_mst) - (i_st + f_st);
+		float dist = length(diff);
+		minDist = min(minDist, dist);
+		/*if(dist < minDist)
+		{
+			color = float3(1, 0, 0);
+			return float4(color.rgb, 1);
+		}*/
+		
+
 		// Draw the min distance (distance field)
-		col += m_dist;
+		color *= minDist;
 
 		// Make center
-		col += 1 - step(.02, m_dist);
+		// color += 1 - step(.02, m_dist);
+		/*
+		if (_MousePos.x < .7) 
+		{
+			color = float3(1, 0, 0);
+		}*/
 
-		return col;
+
+		return float4(color.rgb, 1);
 	}
 		ENDCG
 	}

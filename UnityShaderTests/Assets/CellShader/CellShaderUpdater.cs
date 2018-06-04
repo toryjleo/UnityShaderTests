@@ -18,7 +18,7 @@ public class CellShaderUpdater : MonoBehaviour {
 		if (rend != null && rend.material.shader != null)
 		{
 			Vector3 mousePos = MousePosScreenSpace();
-			rend.material.SetVector("_ObjPos", mousePos);
+			rend.material.SetVector("_MousePos", new Vector2(mousePos.x, mousePos.y));
 		}
 	}
 
